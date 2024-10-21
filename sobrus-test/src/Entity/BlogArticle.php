@@ -125,7 +125,7 @@ class BlogArticle
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(BlogArticleStatus $status): static
     {
         $this->status = $status;
 
