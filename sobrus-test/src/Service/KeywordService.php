@@ -2,15 +2,13 @@
 
 namespace App\Service;
 
-use App\Entity\BlogArticle;
-
-class KeywordManager
+class KeywordService
 {
     public const BANNED_WORDS = ['the', 'a', 'an'];
 
-    public function findMostFrequentWords(BlogArticle $article): array
+    public function findMostFrequentWords(string $content): ?array
     {
-        $text = strtolower($article->getContent());
+        $text = strtolower($content);
         $text = preg_replace("/[^\w\s]/", "", $text);
         $words = explode(" ", $text);
 

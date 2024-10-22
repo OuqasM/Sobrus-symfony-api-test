@@ -4,8 +4,9 @@ namespace App\Entity;
 
 use App\Enum\BlogArticleStatus;
 use App\Repository\BlogArticleRepository;
-use Doctrine\DBAL\Types\Types;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogArticleRepository::class)]
@@ -13,98 +14,114 @@ class BlogArticle
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'integer')]
+    #[Groups(['blogArticle:read'])]
+    private int $id;
 
-    #[ORM\Column]
-    private ?int $authorId = null;
+    #[ORM\Column(type: 'integer')]
+    #[Assert\NotBlank]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private int $authorId;
 
-    #[ORM\Column(length: 100)]
-    private ?string $title = null;
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private string $title;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $publicationDate = null;
+    #[ORM\Column(type: 'datetime')]
+    #[Assert\NotBlank]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private DateTimeInterface $publicationDate;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $creationDate = null;
+    #[ORM\Column(type: 'datetime')]
+    #[Assert\NotBlank]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private DateTimeInterface $creationDate;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $content = null;
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private string $content;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'json')]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
     private array $keywords = [];
 
     #[ORM\Column(type: 'string', enumType: BlogArticleStatus::class)]
+    #[Assert\NotBlank]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
     private BlogArticleStatus $status;
 
-    #[ORM\Column(length: 255)]
-    private ?string $slug = null;
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private string $slug;
 
-    #[ORM\Column(length: 255)]
-    private ?string $coverPictureRef = null;
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
+    #[Groups(['blogArticle:read', 'blogArticle:write'])]
+    private string $coverPictureRef;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getAuthorId(): ?int
+    public function getAuthorId(): int
     {
         return $this->authorId;
     }
 
-    public function setAuthorId(int $authorId): static
+    public function setAuthorId(?int $authorId): self
     {
         $this->authorId = $authorId;
-
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
-
         return $this;
     }
 
-    public function getPublicationDate(): ?\DateTimeInterface
+    public function getPublicationDate(): DateTimeInterface
     {
         return $this->publicationDate;
     }
 
-    public function setPublicationDate(\DateTimeInterface $publicationDate): static
+    public function setPublicationDate(?DateTimeInterface $publicationDate): self
     {
         $this->publicationDate = $publicationDate;
-
         return $this;
     }
 
-    public function getCreationDate(): ?\DateTimeInterface
+    public function getCreationDate(): DateTimeInterface
     {
         return $this->creationDate;
     }
 
-    public function setCreationDate(\DateTimeInterface $creationDate): static
+    public function setCreationDate(?DateTimeInterface $creationDate): self
     {
         $this->creationDate = $creationDate;
-
         return $this;
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    public function setContent(?string $content): self
     {
         $this->content = $content;
-
         return $this;
     }
 
@@ -113,46 +130,42 @@ class BlogArticle
         return $this->keywords;
     }
 
-    public function setKeywords(array $keywords): static
+    public function setKeywords(?array $keywords): self
     {
         $this->keywords = $keywords;
-
         return $this;
     }
 
-    public function getStatus(): ?BlogArticleStatus
+    public function getStatus(): BlogArticleStatus
     {
         return $this->status;
     }
 
-    public function setStatus(BlogArticleStatus $status): static
+    public function setStatus(?BlogArticleStatus $status): self
     {
         $this->status = $status;
-
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }
 
-    public function setSlug(string $slug): static
+    public function setSlug(?string $slug): self
     {
         $this->slug = $slug;
-
         return $this;
     }
 
-    public function getCoverPictureRef(): ?string
+    public function getCoverPictureRef(): string
     {
         return $this->coverPictureRef;
     }
 
-    public function setCoverPictureRef(string $coverPictureRef): static
+    public function setCoverPictureRef(?string $coverPictureRef): self
     {
         $this->coverPictureRef = $coverPictureRef;
-
         return $this;
     }
 }

@@ -5,8 +5,9 @@ namespace App\Controller\Api;
 namespace App\Controller\Api;
 
 use App\Entity\BlogArticle;
+use App\Enum\BlogArticleStatus;
 use App\Repository\BlogArticleRepository;
-use App\Service\KeywordManager;
+use App\Service\KeywordService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Throwable;
 
 #[Route('/api/blog-articles')]
 class BlogArticleController extends AbstractController
@@ -53,29 +55,45 @@ class BlogArticleController extends AbstractController
     }
 
     #[Route('', methods: ['POST'])]
-    public function create(Request $request, KeywordManager $keywordManager, SluggerInterface $slugger): JsonResponse
+    public function create(Request $request, KeywordService $keywordService, SluggerInterface $slugger): JsonResponse
     {
-        $blogArticle = $this->serializer->deserialize($request->getContent(), BlogArticle::class, 'json');
+        $article = new BlogArticle();
+
+        $article->setAuthorId($request->request->get('authorId'));
+        $article->setTitle($request->request->get('title'));
+        $article->setPublicationDate(new \DateTime($request->request->get('publicationDate')));
+        $article->setCreationDate(new \DateTime($request->request->get('creationDate')));
+        $article->setContent($request->request->get('content'));
+        $article->setStatus(BlogArticleStatus::from($request->request->get('status')));
+        $article->setSlug($slugger->slug($article->getTitle())->lower());
     
-        $blogArticle->setSlug($slugger->slug($blogArticle->getTitle())->lower());
-    
-        // Check for banned words in the article content
-        $frequentWords = $keywordManager->findMostFrequentWords($blogArticle->getContent());
+        $frequentWords = $keywordService->findMostFrequentWords($article->getContent());
         if (is_null($frequentWords)) {
             return new JsonResponse(['error' => 'Content contains banned words.'], JsonResponse::HTTP_BAD_REQUEST);
         }
     
-        $errors = $this->validator->validate($blogArticle);
+        $file = $request->files->get('coverPictureRef');
+        if ($file) {
+            $filename = uniqid() . '.' . $file->guessExtension();
+            try {
+                $file->move($this->getParameter('uploads_directory'), $filename);
+                $article->setCoverPictureRef($filename);
+            } catch (Throwable $th) {
+                return new JsonResponse(['error' => 'File upload failed.'], JsonResponse::HTTP_BAD_REQUEST);
+            }
+        }
+    
+        $errors = $this->validator->validate($article);
         if (count($errors) > 0) {
             return $this->json($errors, JsonResponse::HTTP_BAD_REQUEST);
         }
     
-        $blogArticle->setKeywords($frequentWords);
+        $article->setKeywords($frequentWords);
     
-        $this->entityManager->persist($blogArticle);
+        $this->entityManager->persist($article);
         $this->entityManager->flush();
     
-        return $this->json($blogArticle, JsonResponse::HTTP_CREATED);
+        return $this->json($article, JsonResponse::HTTP_CREATED);
     }
 }
 

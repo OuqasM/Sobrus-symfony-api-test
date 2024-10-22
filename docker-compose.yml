@@ -12,7 +12,7 @@ services:
     nginx:
         build: ./docker/nginx
         ports:
-            - "81:80"
+            - "80:80"
         volumes:
             - ./sobrus-test:/var/www/html
             - ./docker/nginx/templates/default.conf.template:/etc/nginx/conf.d/default.conf
