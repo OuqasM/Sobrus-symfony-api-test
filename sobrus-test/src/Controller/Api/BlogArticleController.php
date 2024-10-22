@@ -69,7 +69,7 @@ class BlogArticleController extends AbstractController
     
         $frequentWords = $keywordService->findMostFrequentWords($article->getContent());
         if (is_null($frequentWords)) {
-            return new JsonResponse(['error' => 'Content contains banned words.'], JsonResponse::HTTP_BAD_REQUEST);
+            return new JsonResponse(['error' => 'Unaccepted article content.'], JsonResponse::HTTP_BAD_REQUEST);
         }
     
         $file = $request->files->get('coverPictureRef');
@@ -94,6 +94,50 @@ class BlogArticleController extends AbstractController
         $this->entityManager->flush();
     
         return $this->json($article, JsonResponse::HTTP_CREATED);
+    }
+
+    #[Route('/{id}', methods: ['PATCH'])] // accept json body
+    public function update(int $id, Request $request, KeywordService $keywordService, SluggerInterface $slugger): JsonResponse
+    {
+        $article = $this->entityManager->getRepository(BlogArticle::class)->find($id);
+    
+        if (!$article) {
+            return new JsonResponse(['error' => 'BlogArticle not found.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $article->setAuthorId($data['authorId'] ?? $article->getAuthorId());
+        $article->setTitle($data['title'] ?? $article->getTitle());
+        $article->setPublicationDate(new \DateTime($data['publicationDate'] ?? $article->getPublicationDate()->format('Y-m-d H:i:s')));
+        $article->setCreationDate(new \DateTime($data['creationDate'] ?? $article->getCreationDate()->format('Y-m-d H:i:s')));
+        $article->setContent($data['content'] ?? $article->getContent());
+        $article->setStatus(BlogArticleStatus::from($data['status'] ?? $article->getStatus()->value));
+        $article->setSlug($slugger->slug($article->getTitle())->lower());
+    
+        $frequentWords = $keywordService->findMostFrequentWords($article->getContent());
+        if (is_null($frequentWords)) {
+            return new JsonResponse(['error' => 'Unaccepted article content.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+    
+        $article->setKeywords($frequentWords);
+        $this->entityManager->flush();
+    
+        return $this->json($article, JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/{id}', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        $article = $this->entityManager->getRepository(BlogArticle::class)->find($id);
+        if (!$article) {
+            return new JsonResponse(['error' => 'Article not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $article->setStatus(BlogArticleStatus::DELETED);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }
 
