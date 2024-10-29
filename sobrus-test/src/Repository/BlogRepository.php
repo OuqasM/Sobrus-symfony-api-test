@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\BlogArticle;
+use App\Entity\Blog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<BlogArticle>
+ * @extends ServiceEntityRepository<Blog>
  *
- * @method BlogArticle|null find($id, $lockMode = null, $lockVersion = null)
- * @method BlogArticle|null findOneBy(array $criteria, array $orderBy = null)
- * @method BlogArticle[]    findAll()
- * @method BlogArticle[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Blog|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Blog|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Blog[]    findAll()
+ * @method Blog[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class BlogArticleRepository extends ServiceEntityRepository
+class BlogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, BlogArticle::class);
+        parent::__construct($registry, Blog::class);
     }
 
 //    /**
-//     * @return BlogArticle[] Returns an array of BlogArticle objects
+//     * @return Blog[] Returns an array of Blog objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class BlogArticleRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?BlogArticle
+//    public function findOneBySomeField($value): ?Blog
 //    {
 //        return $this->createQueryBuilder('b')
 //            ->andWhere('b.exampleField = :val')
