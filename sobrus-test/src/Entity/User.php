@@ -8,13 +8,31 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Controller\User\ChangePasswordController;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
     operations: [
         new Get(),
+        new GetCollection(),
         new Post(),
+        new Put(),
+        new Patch(
+            name: 'change_password',
+            uriTemplate: '/users/{id}/change-password',
+            controller: ChangePasswordController::class,
+            normalizationContext: [
+                'groups' => ['chnage_password']
+            ],
+            denormalizationContext: [
+                'groups' => ['chnage_password']
+            ],
+        )
     ],
 )]
 
@@ -35,6 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['chnage_password'])]
     private ?string $password = null;
 
     public function getId(): ?int
