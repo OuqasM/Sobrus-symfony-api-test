@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Controller\User\ChangePasswordController;
+use App\State\HashPasswordProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -20,7 +21,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
+        new Post(
+            processor: HashPasswordProcessor::class,
+        ),
         new Put(),
         new Patch(
             name: 'change_password',

@@ -18,13 +18,13 @@ class PasswordSubscriber implements EventSubscriberInterface
 
     public function hashPassword($event): void
     {
-        $entity = $event->getControllerResult();
-        $method = $event->getRequest()->getMethod();
-        if (!$entity instanceof User || !in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH])) {
+        // $entity = $event->getControllerResult();
+        // $method = $event->getRequest()->getMethod();
+        // if (!$entity instanceof User || !in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH])) {
             return;
-        }
+        // }
 
-        $entity->setPassword($this->passwordHasher->hashPassword($entity, $entity->getPassword()));
+        // $entity->setPassword($this->passwordHasher->hashPassword($entity, $entity->getPassword()));
     }
 
     public static function getSubscribedEvents(): array
