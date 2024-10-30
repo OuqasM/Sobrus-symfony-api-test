@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -30,6 +34,18 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 )]
 #[HasLifecycleCallbacks]
 #[Vich\Uploadable]
+#[ApiFilter(
+    DateFilter::class,
+    properties: ['pubDate'],
+)]
+#[ApiFilter(
+    SearchFilter::class,
+    properties: ['title' => 'partial'], // or exact, start, end
+    )]
+#[ApiFilter(
+    OrderFilter::class,
+    properties: ['id' => 'ASC'],
+)]
 class Blog
 {
     use CommonDate;
